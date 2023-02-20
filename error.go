@@ -1,4 +1,4 @@
-package httpjson2
+package rpc
 
 import "errors"
 

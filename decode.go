@@ -1,4 +1,4 @@
-package httpjson2
+package rpc
 
 import (
 	"encoding/json"
@@ -6,14 +6,14 @@ import (
 )
 
 // clientResponse represents a JSON-RPC response returned to a client.
-type clientResponse struct {
+type ClientResponse struct {
 	Version string           `json:"jsonrpc"`
 	Result  *json.RawMessage `json:"result"`
 	Error   *json.RawMessage `json:"error"`
 	Id      *uint64          `json:"id"`
 }
 
-func (c clientResponse) decode(reply interface{}) error {
+func (c ClientResponse) Decode(reply interface{}) error {
 	if c.Error != nil {
 		jsonErr := &Error{}
 		if err := json.Unmarshal(*c.Error, jsonErr); err != nil {
@@ -33,9 +33,9 @@ func (c clientResponse) decode(reply interface{}) error {
 }
 
 func decodeResponse(r io.Reader, reply interface{}) error {
-	var c clientResponse
+	var c ClientResponse
 	if err := json.NewDecoder(r).Decode(&c); err != nil {
 		return err
 	}
-	return c.decode(reply)
+	return c.Decode(reply)
 }

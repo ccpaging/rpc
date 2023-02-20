@@ -3,7 +3,7 @@ package wscaller
 import (
 	"log"
 
-	"github.com/ccpaging/httpjson2"
+	"github.com/ccpaging/rpc"
 )
 
 type Event struct {
@@ -15,7 +15,7 @@ type Event struct {
 // The method signature of a notification is much like a normal method request but lacks the id key
 
 type websocketResponse struct {
-	httpjson2.ClientResponse
+	rpc.ClientResponse
 	Method string  `json:"method"`
 	Params []Event `json:"params"`
 }

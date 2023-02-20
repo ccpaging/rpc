@@ -9,7 +9,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/ccpaging/httpjson2"
+	"github.com/ccpaging/rpc"
 	"github.com/gorilla/websocket"
 )
 
@@ -30,7 +30,7 @@ type websocketCaller struct {
 
 type sendRequest struct {
 	cancel  context.CancelFunc
-	request *httpjson2.ClientRequest
+	request *rpc.ClientRequest
 	reply   interface{}
 }
 
@@ -112,7 +112,7 @@ func NewWebsocketCaller(ctx context.Context, uri string, timeout time.Duration, 
 				}
 				return
 			case req := <-sendChan:
-				processor.Add(req.request.Id, func(resp httpjson2.ClientResponse) error {
+				processor.Add(req.request.Id, func(resp rpc.ClientResponse) error {
 					err := resp.Decode(req.reply)
 					req.cancel()
 					return err
@@ -138,11 +138,11 @@ func (w websocketCaller) Call(method string, params, reply interface{}) (err err
 	ctx, cancel := context.WithTimeout(context.Background(), w.timeout)
 	defer cancel()
 	select {
-	case w.sendChan <- &sendRequest{cancel: cancel, request: &httpjson2.ClientRequest{
+	case w.sendChan <- &sendRequest{cancel: cancel, request: &rpc.ClientRequest{
 		Version: "2.0",
 		Method:  method,
 		Params:  params,
-		Id:      httpjson2.ReqId(),
+		Id:      rpc.ReqId(),
 	}, reply: reply}:
 
 	default:

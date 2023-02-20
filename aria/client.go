@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ccpaging/httpjson2"
+	"github.com/ccpaging/rpc"
 )
 
 // Option is a container for specifying Call parameters and returning results
@@ -20,7 +20,7 @@ type Client interface {
 }
 
 type client struct {
-	httpjson2.Caller
+	rpc.Caller
 	token string
 }
 
@@ -36,16 +36,17 @@ func New(uri string, token string, timeout time.Duration) (Client, error) {
 		Timeout:   timeout,
 		KeepAlive: 60 * time.Second,
 	}).Dial
+	transport := &http.Transport{
+		MaxIdleConnsPerHost:   1,
+		MaxConnsPerHost:       1,
+		Dial:                  dial,
+		ResponseHeaderTimeout: timeout,
+	}
 	cli := &http.Client{
-		Transport: &http.Transport{
-			MaxIdleConnsPerHost:   1,
-			MaxConnsPerHost:       1,
-			Dial:                  dial,
-			ResponseHeaderTimeout: timeout,
-		},
+		Transport: transport,
 	}
 	return &client{
-		Caller: httpjson2.NewHTTPCaller(uri, cli),
+		Caller: rpc.NewHTTPCaller(uri, cli),
 		token:  token,
 	}, nil
 }
@@ -657,7 +658,7 @@ func (c *client) Multicall(methods []Method) (r []interface{}, err error) {
 // `system.listMethods()`
 // This method returns the all available RPC methods in an array of string.
 // Unlike other methods, this method does not require secret token.
-// This is safe because this method jsut returns the available method names.
+// This is safe because this method just returns the available method names.
 func (c *client) ListMethods() (methods []string, err error) {
 	err = c.Call(aria2ListMethods, []string{}, &methods)
 	return

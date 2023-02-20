@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ccpaging/go-aria"
+	"github.com/ccpaging/rpc/aria"
 )
 
 func TestWebsocketCaller(t *testing.T) {

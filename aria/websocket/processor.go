@@ -3,10 +3,10 @@ package wscaller
 import (
 	"sync"
 
-	"github.com/ccpaging/httpjson2"
+	"github.com/ccpaging/rpc"
 )
 
-type ResponseProcFn func(resp httpjson2.ClientResponse) error
+type ResponseProcFn func(resp rpc.ClientResponse) error
 
 type ResponseProcessor struct {
 	cbs map[uint64]ResponseProcFn
@@ -33,7 +33,7 @@ func (r *ResponseProcessor) remove(id uint64) {
 }
 
 // Process called by recv routine
-func (r *ResponseProcessor) Process(resp httpjson2.ClientResponse) error {
+func (r *ResponseProcessor) Process(resp rpc.ClientResponse) error {
 	id := *resp.Id
 	r.mu.RLock()
 	fn, ok := r.cbs[id]
